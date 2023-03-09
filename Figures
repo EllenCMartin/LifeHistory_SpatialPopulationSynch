@@ -1,0 +1,556 @@
+##############
+## Making manuscript figures
+## Ellen C Martin 
+## Updated 28 11 2022 
+
+
+####################################################################################################
+# PAPER FIGURES ###################################################################################
+####################################################################################################
+
+
+## FIGURE 1
+countrycolors = c("#1B9E77","#D95F02", "#E6AB02" ,"#A6761D")
+migclasscolors = c("#7570B3", "#E7298A", "#66A61E")
+
+## FIGURE 1A
+## FIGURE 1A
+## Number of species present in 4, 3, 2, or 1 dataset.
+
+datasetcount <-  as.data.frame(table(SynchTablesAll$nameeg)/2)
+colnames(datasetcount) <- c("nameeg","datasetcount")
+datasetcount_merged <- merge(SynchTablesAll, datasetcount, by="nameeg")
+datasetcount_noduplicates <- datasetcount_merged[!duplicated(datasetcount_merged$nameeg), ]
+datasetcount_noduplicates$datasetcount <- as.factor(datasetcount_noduplicates$datasetcount)
+fig1adata<-datasetcount_merged[- grep("log.r", datasetcount_merged$SynchVar),]
+fig1adata$datasetcount <- as.factor(fig1adata$datasetcount)
+legend_title <- "Species Present \nin # Countries"
+
+fig1a <- ggplot(fig1adata, aes(x=Dataset, fill=datasetcount)) + 
+  geom_bar(color="black", size = 1) +
+  theme_bw()+
+  theme(title = element_text(size = 24,family ="serif", color="black"))+ 
+  labs(y = "Number of Species", x = "") +
+  theme(axis.title.y = element_text(size = 24, angle = 90,family ="serif", color="black"))+ 
+  theme(axis.text.y = element_text(size = 18, hjust=0.5, angle = 90,family ="serif", color="black"))+ 
+  theme(axis.text.x = element_text(size = 18, angle = 00,family ="serif", color="black"))+ 
+  theme(axis.title.x = element_text(size = 24, angle = 00, family ="serif", color="black"))+
+  theme(panel.border =  element_rect(colour = "black", fill=NA, size=1), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black"),
+        plot.margin=unit(c(0,0,0,0), "cm"),
+        panel.spacing=unit(c(0,0,0,0), "cm")) +
+  scale_fill_grey(legend_title, start=0.1, end=0.8, labels=c('1', '2', '3', '4')) +
+  theme(
+    axis.ticks.length=unit(-0.25, "cm"), 
+    axis.ticks.margin=unit(0.5, "cm"),
+    axis.line = element_line(color = 'black',size=0.05),
+    axis.ticks.y = element_line(size=0.05,color='black'),  
+    axis.ticks.x = element_line(size=0.05,color='white'),
+    axis.text.y = element_text(hjust=0.5))+
+  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
+        legend.key.height = unit(0.5, 'cm'), #change legend key height
+        legend.key.width = unit(0.5, 'cm'), #change legend key width
+        legend.title = element_text(size=20, family="serif"), #change legend title font size
+        legend.text = element_text(size=20, family="serif")) + #change legend text font size 
+  theme(legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white"))  +
+  scale_x_discrete(labels = c("United Kingdom" = "United\nKingdom")) +
+  labs(title = NULL, tag = "A.") +
+  theme(plot.tag = element_text(face="bold", size=24)) 
+
+
+## FIGURE 1B
+## Number of species present in 4, 3, 2, or 1 dataset.
+## number of different migratory classes per dataset
+fig1adata$Dataset[fig1adata$Dataset == "UK Offset"] <- "United Kingdom"
+data_count_1b <- aggregate(data = fig1adata,                # Applying aggregate
+                           nameeg ~ (CountrySpecificCat+Dataset), FUN = length)
+
+
+data_count_1b$Dataset <- factor(data_count_1b$Dataset, levels = c("Norway", "Sweden", "Switzerland", "United Kingdom"))
+data_count_1b$CountrySpecificCat <- factor(data_count_1b$CountrySpecificCat, levels=c("Resident", "Short", "Long"))
+
+
+fig1b<- ggplot(data_count_1b, aes(x=CountrySpecificCat, y= nameeg, group = Dataset, fill=Dataset)) +
+  geom_bar(position="dodge", stat = "identity",  colour="black", size=1, lwd = 1) +
+  labs(y = "Number of Species", x = "Migration Tactic") +
+  theme_bw() +
+  theme(title = element_text(size = 24,family ="serif", color="black"))+ 
+  labs(color="black", family="serif") +
+  theme(axis.title.y = element_text(size = 24, color="black", angle = 90,family ="serif"))+ 
+  theme(axis.text.y = element_text(size = 20, hjust=0.5, color="black", angle = 90,family ="serif"))+ 
+  theme(axis.text.x = element_text(size = 20, color="black", angle = 00,family ="serif"))+ 
+  theme(axis.title.x = element_text(size = 24, color="black", angle = 00, family ="serif"))+
+  theme(plot.title = element_text(hjust = 0.5)) +
+  theme(panel.border =  element_rect(colour = "black", fill=NA, size=1), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
+        legend.key.height = unit(0.5, 'cm'), #change legend key height
+        legend.key.width = unit(0.5, 'cm'), #change legend key width
+        legend.title = element_text(size=24, family="serif"), #change legend title font size
+        legend.text = element_text(size=22, family="serif")) + #change legend text font size 
+  theme(legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", 
+                                         colour ="white")) +
+  geom_text(aes(label=nameeg),family="serif", size = 8, position=position_dodge(width=0.9), vjust=-0.50) + 
+  scale_fill_manual(values = alpha(c("#1B9E77", "#D95F02", "#E6AB02", "#A6761D","#1B9E77", "#D95F02", "#E6AB02", "#A6761D","#1B9E77", "#D95F02", "#E6AB02", "#A6761D"), 0.6))+ 
+  ylim(c(0, 30)) +
+  theme(legend.position = c(0.81, 0.79)) +
+  labs(fill="Country") + 
+  theme(axis.ticks.length=unit(-0.25, "cm"), 
+        axis.ticks.margin=unit(0.5, "cm"),
+        axis.line = element_line(color = 'black',size=0.05),
+        axis.ticks.y = element_line(size=0.05,color='black'),
+        axis.text.y = element_text(hjust=0.5),
+        axis.ticks.x = element_line(size=0.05,color='white')) +
+  labs(title = NULL, tag = "B.") +
+  theme(plot.tag = element_text(face="bold", size=24))
+
+
+
+## FIGURE 1C 
+## Histogram of Log Generation Length
+mu <- ddply(logrSynchTab, "CountrySpecificCat", summarise, grp.mean=mean(LogGenLength))
+min <- ddply(logrSynchTab, "CountrySpecificCat", summarise, grp.min=min(LogGenLength))
+max <- ddply(logrSynchTab, "CountrySpecificCat", summarise, grp.max=max(LogGenLength))
+
+## need to adjust for multiple counts of the same species across datasets
+mu2<-logrSynchTab
+mu3 <- ddply(mu2, "CountrySpecificCat", summarise, grp.mean=mean(LogGenLength))
+mu2$CountrySpecificCat <- factor(mu2$CountrySpecificCat, levels=c("Resident", "Short", "Long"))
+mu2 <- mu2[!duplicated(mu2$nameeg), ]
+
+fig1c <- ggplot(mu2, aes(x=LogGenLength, fill=CountrySpecificCat)) + 
+  geom_histogram(alpha=0.8, lwd = 1, color="black", binwidth=0.20, size = 1, position = "stack") + 
+  xlim(min(mu2$LogGenLength), max(mu2$LogGenLength)) +
+  scale_color_manual(values=c("#7570B3", "#E7298A", "#66A61E")) +
+  theme_bw() +
+  labs(y = "Number of Species", x = "Log Generation Time") +
+  theme(axis.title.y = element_text(size = 24, angle = 90,family ="serif", color="black"))+ 
+  theme(axis.text.y = element_text(size = 20, hjust=0.5, angle = 90, family ="serif", color="black"))+ 
+  theme(axis.text.x = element_text(size = 20, angle = 00,family ="serif", color="black"))+ 
+  theme(axis.title.x = element_text(size = 24, angle = 00, family ="serif", color="black")) +
+  theme(panel.border =  element_rect(colour = "black", fill=NA, size=1), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  scale_fill_manual(values = migclasscolors) +
+  scale_color_manual(values = migclasscolors) +
+  theme(legend.key.size = unit(0.5, 'cm'), #change legend key size
+        legend.key.height = unit(0.5, 'cm'), #change legend key height
+        legend.key.width = unit(0.5, 'cm'), #change legend key width
+        legend.title = element_text(size=24, family="serif"), #change legend title font size
+        legend.text = element_text(size=22, family="serif")) + #change legend text font size 
+  theme(legend.background = element_rect(fill="white", size=0.5, linetype="solid", colour ="white")) +
+  theme(legend.position = c(0.8, 0.80)) +
+  labs(fill="Migration Tactic") +
+  theme(
+    axis.ticks.length=unit(-0.25, "cm"), 
+    axis.ticks.margin=unit(0.5, "cm"),
+    axis.line = element_line(color = 'black',size=0.05),
+    axis.ticks.y = element_line(size=0.05,color='black'),
+    axis.text.y = element_text(hjust=0.5)) +
+  xlim(c(0.6496277, 2.83)) +
+  labs(title = NULL, tag = "C.") +
+  theme(plot.tag = element_text(face="bold", size=24, family="serif"))
+
+
+
+## FIGURE 2
+## Figure 2a Distance intervals and synchrony in log growth rate
+## Plot mean synchrony per distance class per dataset
+mean350grCountry <- ddply(logrSynchTab, "Dataset", summarise, grp.mean=mean(Mean350r))
+Distance <- c("350")
+mean350grCountry$Distance <- Distance
+se_350 <- ddply(logrSynchTab, "Dataset", summarise, grp.sd=sd(Mean350r))
+
+
+mean500grCountry <- ddply(logrSynchTab, "Dataset", summarise, grp.mean=mean(Mean500r))
+Distance <- c("500")
+mean500grCountry$Distance <- Distance
+se_500 <- ddply(logrSynchTab, "Dataset", summarise, grp.sd=sd(Mean500r))
+
+mean1000grCountry <- ddply(logrSynchTab, "Dataset", summarise, grp.mean=mean(Mean1000r))
+Distance <- c("1000")
+mean1000grCountry$Distance <- Distance
+se_1000 <- ddply(logrSynchTab, "Dataset", summarise, grp.sd=sd(Mean1000r))
+
+
+meanRhosgrCountry <- ddply(logrSynchTab, "Dataset", summarise, grp.mean=mean(MeanRawr))
+Distance <- c("All")
+meanRhosgrCountry$Distance <- Distance
+se_all <- ddply(logrSynchTab, "Dataset", summarise, grp.sd=sd(MeanRawr))
+allses <-as.numeric(as.character(unlist(c(se_350, se_500, se_1000, se_all))))
+allses<- allses[!is.na(allses)]
+
+
+fig2dfgr <- rbind(mean350grCountry,mean500grCountry,mean1000grCountry,meanRhosgrCountry)
+fig2dfgr$Dataset <- factor(fig2dfgr$Dataset, levels=(c("Norway","Sweden","Switzerland","United Kingdom")))
+fig2dfgr$Distance <- factor(fig2dfgr$Distance, levels=(c("350","500","1000","All")))
+lower=fig2dfgr$grp.mean-(allses) # Calculate lower bar of standard deviation
+upper=fig2dfgr$grp.mean+(allses) # Calculate upper bar of standard deviation
+
+
+fig2a<-ggplot(fig2dfgr, aes(x=Dataset, grp.mean, fill=Distance, color=Distance)) +
+  geom_point(aes(color=Distance), width=2,  size=7, position = position_dodge(0.7)) +
+  geom_errorbar(data=fig2dfgr, aes(ymin=lower, ymax=upper, group = Distance), width = 0.3,
+                position = position_dodge(0.7), size=1) +
+  guides(fill = FALSE)  +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_line(size=.1, color="grey80")) +
+  theme(axis.text.y = element_text(colour = 'black', size = 14),
+        axis.title.y = element_text(size = 20,colour = 'black',
+                                    vjust = 2.5)) +
+  theme(axis.text.x = element_text(colour = 'black', size = 15),
+        axis.title.x = element_text(size = 20,colour = 'black',
+                                    vjust = 0))+ labs(color='')+
+  labs(y = "Mean Synchrony", x = "")  +
+  labs(color="Dataset", size="20", family="serif") +
+  theme(axis.title.y = element_text(size = 24,  vjust=1.5, angle = 90,family ="serif"))+ 
+  theme(axis.text.y = element_text(size = 20, hjust= 0.5, angle = 90,family ="serif"))+ 
+  theme(axis.text.x = element_text(size = 20, angle = 00,family ="serif"))+ 
+  theme(axis.title.x = element_text(size = 24, angle = 00, family ="serif"))+
+  theme(panel.border =  element_rect(colour = "black", fill=NA, size=1), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + 
+  scale_color_manual(name="Distance (km)",labels=c('≤ 350', '≤ 500', '≤ 1000', '0 - Max \ndistance'), 
+                     values = alpha(c("cornflowerblue", "darkblue", "tan3", "lightsalmon","cornflowerblue", "darkblue", "tan3", "lightsalmon","cornflowerblue", "darkblue", "tan3", "lightsalmon"), 0.9)) + 
+  guides(colour = guide_legend(override.aes = list(size=3))) +
+  theme(
+    axis.ticks.length=unit(-0.25, "cm"), 
+    axis.ticks.margin=unit(0.5, "cm"),
+    axis.ticks.x = element_blank(),
+    axis.line = element_line(color = 'black',size=0.05),
+    axis.ticks.y = element_line(size=0.05,color='black'),
+    axis.text.y = element_text(hjust=0.5)) + 
+  theme(legend.title = element_text(size=18, family="serif"), #change legend title font size
+        legend.text = element_text(size=16, family="serif")) + #change legend text font size 
+  theme(legend.position = c(0.85, 0.78)) +
+  theme(legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", colour ="white")) +
+  theme(panel.border =  element_rect(colour = "black", fill=NA, size=1), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  ggtitle("A. Population Growth Rate") + 
+  theme(plot.title = element_text(hjust=-0.3, size = 26, family ="serif", color="black", face="bold")) + 
+  ylim(c(0.0, 0.7)) + 
+  scale_x_discrete(labels = c("United Kingdom" = "United\nKingdom")) +
+  guides(color = guide_legend(
+    override.aes=list(shape = 19)))
+
+
+
+## Figure 2b Distance intervals and synchrony in log abundance
+## Plot mean synchrony per distance class per dataset
+
+mean350abCountry <- ddply(logabSynchTab, "Dataset", summarise, grp.mean=mean(Mean350ab))
+Distance <- c("350")
+mean350abCountry$Distance <- Distance
+se_350ab <- ddply(logabSynchTab, "Dataset", summarise, grp.sd=sd(Mean350ab))
+
+mean500abCountry <- ddply(logabSynchTab, "Dataset", summarise, grp.mean=mean(Mean500ab))
+Distance <- c("500")
+mean500abCountry$Distance <- Distance
+se_500ab <- ddply(logabSynchTab, "Dataset", summarise, grp.sd=sd(Mean500ab))
+
+mean1000abCountry <- ddply(logabSynchTab, "Dataset", summarise, grp.mean=mean(Mean1000ab))
+Distance <- c("1000")
+mean1000abCountry$Distance <- Distance
+se_1000ab <- ddply(logabSynchTab, "Dataset", summarise, grp.sd=sd(Mean1000ab))
+
+meanRhosabCountry <- ddply(logabSynchTab, "Dataset", summarise, grp.mean=mean(MeanRawab ))
+Distance <- c("All")
+meanRhosabCountry$Distance <- Distance
+se_allab <- ddply(logabSynchTab, "Dataset", summarise, grp.sd=sd(MeanRawab))
+
+allsesab <-as.numeric(as.character(unlist(c(se_350ab, se_500ab, se_1000ab, se_allab))))
+allsesab <- allsesab[!is.na(allsesab)]
+
+fig2df <- rbind(mean350abCountry,mean500abCountry,mean1000abCountry,meanRhosabCountry)
+fig2df$Dataset <- factor(fig2df$Dataset, levels=(c("Norway","Sweden","Switzerland","United Kingdom")))
+fig2df$Distance <- factor(fig2df$Distance, levels=(c("350","500","1000","All")))
+
+fig2dfab<- rbind(mean350abCountry,mean500abCountry,mean1000abCountry,meanRhosabCountry)
+fig2dfab$Dataset <- factor(fig2dfab$Dataset, levels=(c("Norway","Sweden","Switzerland","United Kingdom")))
+fig2dfab$Distance <- factor(fig2dfab$Distance, levels=(c("350","500","1000","All")))
+lowerab=fig2dfab$grp.mean-(allsesab)
+upperab=fig2dfab$grp.mean+(allsesab)
+
+
+fig2b<-ggplot(fig2dfab, aes(x=Dataset, grp.mean, fill=Distance, color=Distance)) +
+  geom_point(aes(color=Distance), width=0,  size=7, position = position_dodge(0.7)) +
+  geom_errorbar(data=fig2dfab, aes(ymin=lowerab, ymax=upperab, group = Distance), width = 0.4,
+                position = position_dodge(0.7), size=1) +
+  theme(plot.title = element_text(family="serif", face="bold", size="20")) +
+  guides(fill = FALSE)  +
+  theme_bw() +
+  theme(panel.grid.major.x = element_blank(), panel.grid.major.y = element_line(size=.1, color="grey80")) +
+  theme(axis.text.y = element_text(colour = 'black', size = 14),
+        axis.title.y = element_text(size = 20,colour = 'black',
+                                    vjust = 2.5)) +
+  theme(axis.text.x = element_text(colour = 'black', size = 15),
+        axis.title.x = element_text(size = 20,colour = 'black',
+                                    vjust = 0))+ labs(color='')+
+  labs(y = "Mean Synchrony", x = "")  +
+  labs(color="Dataset", size="18", family="serif") +
+  theme(axis.title.y = element_text(size = 24,  vjust=1.5, angle = 90,family ="serif"))+ 
+  theme(axis.text.y = element_text(size = 20, hjust= 0.5, angle = 90,family ="serif"))+ 
+  theme(axis.text.x = element_text(size = 20, angle = 00,family ="serif"))+ 
+  theme(axis.title.x = element_text(size = 24, angle = 00, family ="serif"))+
+  theme(panel.border =  element_rect(colour = "black", fill=NA, size=1), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) + 
+  scale_color_manual(name="",labels=c('≤ 350', '≤ 500', '≤ 1000', '0 - Max \ndistance'), 
+                     values = alpha(c("cornflowerblue", "darkblue", "tan3", "lightsalmon","cornflowerblue", "darkblue", "tan3", "lightsalmon","cornflowerblue", "darkblue", "tan3", "lightsalmon"), 0.9)) + 
+  #theme(legend.key.size = unit(0.9,"line"))+ 
+  guides(colour = guide_legend(override.aes = list(size=2))) +
+  theme(
+    axis.ticks.length=unit(-0.25, "cm"), 
+    axis.ticks.margin=unit(0.5, "cm"),
+    axis.ticks.x = element_blank(),
+    axis.line = element_line(color = 'black',size=0.05),
+    axis.ticks.y = element_line(size=0.05,color='black'),
+    axis.text.y = element_text(hjust=0.5)) + 
+  theme(legend.title = element_text(size=22, family="serif"), #change legend title font size
+        legend.text = element_text(size=20, family="serif")) + #change legend text font size 
+  theme(legend.position = c(0.8, 0.95)) +
+  theme(legend.background = element_rect(fill="white",
+                                         size=0.5, linetype="solid", colour ="white")) +
+  theme(panel.border =  element_rect(colour = "black", fill=NA, size=1), panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(), axis.line = element_line(colour = "black")) +
+  #scale_x_discrete(labels=c('≤ 350', '≤ 500', '≤ 1000', '0 - Max \ndistance')) +
+  ggtitle("B. Abundance") + 
+  theme(plot.title = element_text(hjust=-0.07, size = 26, family ="serif", color="black", face="bold")) + 
+  theme(legend.position = "none") +
+  ylim(c(0.0, 0.7))+
+  scale_x_discrete(labels = c("United Kingdom" = "United\nKingdom")) 
+
+
+windows(width=13, height=6.5)
+png(file="FIGURE2.png", width=13, height=6.5, unit="in", res=500)
+plot_grid(fig2a, fig2b, scale=1, ncol=2, align="h")
+dev.off()
+
+
+### FIGURE 3 
+# Get the saved models models from wherever they were stored
+GRmodel <- bestgrowthratemodel
+LAmodel <- secondbestabundancemodel
+
+# make a linear model instead
+GRdata <- GRmodel@frame
+LAdata <- LAmodel@frame
+
+GRMmodel <- with(GRdata, lmer(MeanRhos ~ LogGenLength + CountrySpecificCat + 
+                                LogGenLength * Dataset + 
+                                CountrySpecificCat * Dataset + (1|nameeg),REML=FALSE, na.action=na.fail))
+LAMmodel <- with(LAdata, lmer(MeanRhos ~ LogGenLength * CountrySpecificCat + 
+                                LogGenLength * Dataset + 
+                                CountrySpecificCat * Dataset + (1|nameeg),REML=FALSE, na.action=na.fail))
+GRMAIC <- dredge(GRMmodel)
+LAMAIC <- dredge(LAMmodel)
+GRbestmod <- update(get.models(GRMAIC, 1)[[1]], REML=TRUE) #get the best model and refit with REML
+LAbestmod <- update(get.models(LAMAIC, 1)[[1]], REML=TRUE) #get the best best model and refit with REML
+LAsecondbestmod <- update(get.models(LAMAIC, 2)[[1]], REML=TRUE) #get the second best model and refit with REML
+
+# predict the models
+# First generate the data, and restrict it to the range of generation time for 
+# different migratory strategies and only for Switzerland
+predictdata <- cbind.data.frame(LogGenLength=unlist(with(GRdata[GRdata$Dataset=="Switzerland",], 
+                                                         lapply(list("Long", "Short", "Resident"), function(x) 
+                                                           seq(min(LogGenLength[CountrySpecificCat==x]), 
+                                                               max(LogGenLength[CountrySpecificCat==x]), 
+                                                               length=30)))), 
+                                CountrySpecificCat=rep(c("Long", "Short", "Resident"), each=30), 
+                                Dataset="Switzerland", 
+                                nameeg="Phylloscopus bonelli") # seems we need to predict for a species
+
+
+predictdata[,c("GRMfit", "GRMupper", "GRMlower")] <- predictInterval(GRbestmod, newdata=predictdata, 
+                                                                     which="fixed", stat="mean", 
+                                                                     n.sims=10000, level=0.95, 
+                                                                     include.resid.var=0)
+predictdata[,c("LAMfit", "LAMupper", "LAMlower")] <- predictInterval(LAsecondbestmod, newdata=predictdata, 
+                                                                     which="fixed", stat="mean", 
+                                                                     n.sims=10000, level=0.95, 
+                                                                     include.resid.var=0)
+
+#Reorder GR and LA  data so legend plots in correct order (Resident, Short, Long)
+GRdata$CountrySpecificCat <- factor(GRdata$CountrySpecificCat, levels=c("Resident", "Short", "Long"))
+LAdata$CountrySpecificCat <- factor(LAdata$CountrySpecificCat, levels=c("Resident", "Short", "Long"))
+
+# make a colour vector (not really necessary but makes life easier). 
+colvec <- c(Resident="#7570B3", Short="#E7298A", Long="#66A61E")
+
+# make a window that fits the number of panels
+windows(width=7.2, height=3.5)
+png("Figure3MM.png", width=7.2, height=3.9, units="in", res=300)
+# define some plotting settings
+par(mfrow=c(1,2), mai=c(0.5,0.5,0.4,0.1), mgp=c(1,0.1,0), tck=0.015, family="serif")
+
+# make an empty plot for growth rate
+plot(0,0, type="n", axes=FALSE, ann=FALSE, xlim=range(GRdata[,"LogGenLength"]), 
+     ylim=range(c(GRdata$MeanRhos, LAdata$MeanRhos)))
+abline(h = c(0,0.2,0.4,0.6,0.8), lty = 1, col = "grey95")
+# add the points, first the gray ones
+with(GRdata[GRdata$Dataset!="Switzerland",], points(LogGenLength, MeanRhos, pch=16, col="#66666634"))
+# The coloured ones
+with(GRdata[GRdata$Dataset=="Switzerland",], points(LogGenLength, MeanRhos, pch=16, 
+                                                    col=paste0(colvec[CountrySpecificCat], "80")))
+# Add the confidence interval, this should be a shaded polygon, quite transparent
+
+
+for(i in c("Resident", "Short", "Long"))
+{
+  with(predictdata[predictdata$CountrySpecificCat==i,], polygon(c(LogGenLength, rev(LogGenLength)), 
+                                                                c(GRMlower, rev(GRMupper)), border=NA, 
+                                                                col=paste0(colvec[i], 35)))
+}
+# Add the lines
+for(i in c("Resident", "Short", "Long"))
+{
+  with(predictdata[predictdata$CountrySpecificCat==i,], lines(LogGenLength, GRMfit, lwd=4, 
+                                                              col=paste0(colvec[i], "FF")))
+}
+# add axes etc. 
+axis(1)
+axis(2)
+box()
+mtext("Log Generation Time", side=1, line=1.3,  cex=1.2)
+mtext("Mean Synchrony", side=2, line=1.4,  cex=1.2)
+mtext("A. Log Population Growth Rate", side=3, adj=0, line=0.3, cex=1.2, font = 2)
+legend("topright", c("Resident", "Short", "Long"), lwd=3, col=colvec, bty="n")
+
+# Then the log abundance
+plot(0,0, type="n", axes=FALSE, ann=FALSE, xlim=range(GRdata[,"LogGenLength"]), 
+     ylim=range(c(GRdata$MeanRhos, LAdata$MeanRhos)))
+abline(h = c(0,0.2,0.4,0.6,0.8), lty = 1, col = "grey95")
+
+# add the points, first the gray ones
+with(LAdata[LAdata$Dataset!="Switzerland",], points(LogGenLength, MeanRhos, pch=16, col="#66666644"))
+# The coloured ones
+with(LAdata[LAdata$Dataset=="Switzerland",], points(LogGenLength, MeanRhos, pch=16, 
+                                                    col=paste0(colvec[CountrySpecificCat], "80")))
+# Add the confidence interval, this should be a shaded polygon, quite transparent
+for(i in c("Resident", "Short", "Long"))
+{
+  with(predictdata[predictdata$CountrySpecificCat==i,], polygon(c(LogGenLength, rev(LogGenLength)), 
+                                                                c(LAMlower, rev(LAMupper)), border=NA, 
+                                                                col=paste0(colvec[i], 35)))
+}
+# Add the lines
+for(i in c("Resident", "Short", "Long"))
+{
+  with(predictdata[predictdata$CountrySpecificCat==i,], lines(LogGenLength, LAMfit, lwd=4, 
+                                                              col=paste0(colvec[i], "FF")))
+}
+# add axes etc. 
+axis(1)
+axis(2)
+box()
+mtext("Log Generation Time", side=1, line=1.3, cex=1.2)
+mtext("Mean Synchrony", side=2, line=1.4, cex=1.2)
+mtext("B. Log Abundance", side=3, adj=0, line=0.3, cex=1.2,font = 2)
+legend("topright", c("Resident", "Short", "Long"), lwd=3, col=colvec, bty="n")
+
+dev.off()
+
+
+## APPENDIX 1 TABLE ########################################
+library(tidyr)
+library(dotwhisker)
+spread(abundancesynchtable, key = Dataset, value = MeanRhos)
+grsynchtable <-logrSynchTab[, c('nameeg', 'commonname', 'Dataset', 'MeanRhos')]
+appendix1 <- spread(grsynchtable, key = Dataset, value = MeanRhos)
+
+## APPENDIX 6a ########################################
+# Plot the second best growth model and best abundance model for all countries
+GR2bestmod <- update(get.models(GRMAIC, 2)[[1]], REML=TRUE) # get the second best model
+LA2bestmod <- update(get.models(LAMAIC, 1)[[1]], REML=TRUE) # get the  best model
+
+GRdata$CountrySpecificCat <- factor(GRdata$CountrySpecificCat, levels=c("Resident", "Short", "Long"))
+LAdata$CountrySpecificCat <- factor(LAdata$CountrySpecificCat, levels=c("Resident", "Short", "Long"))
+
+# A bit more extensive data, for each country
+predictdata2 <- do.call(rbind.data.frame, lapply(list("Switzerland", "Norway", "Sweden", "United Kingdom"), function(x) 
+  cbind.data.frame(LogGenLength=unlist(with(GRdata[GRdata$Dataset==x,], 
+                                            lapply(list("Long", "Short", "Resident"), 
+                                                   function(x) seq(min(LogGenLength[CountrySpecificCat==x]), 
+                                                                   max(LogGenLength[CountrySpecificCat==x]), 
+                                                                   length=30)))), 
+                   CountrySpecificCat=rep(c("Long", "Short", "Resident"), each=30), 
+                   Dataset=x,
+                   nameeg="Phylloscopus bonelli")))
+
+predictdata2[,c("GRMfit", "GRMupper", "GRMlower")] <- predictInterval(GR2bestmod, newdata=predictdata2, 
+                                                                      which="fixed", stat="mean", 
+                                                                      n.sims=10000, level=0.95, 
+                                                                      include.resid.var=0)
+predictdata2[,c("LAMfit", "LAMupper", "LAMlower")] <- predictInterval(LA2bestmod, newdata=predictdata2, 
+                                                                      which="fixed", stat="mean", 
+                                                                      n.sims=10000, level=0.95, 
+                                                                      include.resid.var=0)
+
+
+# make a 4 by 2 plot
+png("FigureAppendix6a.png", width=7.2, height=16, units="in", res=300)
+# define some plotting settings
+
+par(mfrow=c(4,2), mai=c(0.5,0.5,0.4,0.1), omi=c(0,0,0.4,0), mgp=c(1,0.1,0), tck=0.015, family="serif")
+li <- 1
+for(c in c("Norway", "Sweden", "Switzerland", "United Kingdom"))
+{
+  plot(0,0, type="n", axes=FALSE, ann=FALSE, xlim=range(GRdata[,"LogGenLength"]), 
+       ylim=range(c(GRdata$MeanRhos, LAdata$MeanRhos)))
+  # add the points, only for the country
+  with(GRdata[GRdata$Dataset==c,], points(LogGenLength, MeanRhos, pch=16, 
+                                          col=paste0(colvec[CountrySpecificCat], "77")))
+  # Add the confidence interval, this should be a shaded polygon, quite transparent
+  for(i in c("Resident", "Short", "Long"))
+  {
+    with(predictdata2[predictdata2$CountrySpecificCat==i&predictdata2$Dataset==c,], polygon(c(LogGenLength, rev(LogGenLength)), 
+                                                                                            c(GRMlower, rev(GRMupper)), border=NA, 
+                                                                                            col=paste0(colvec[i], 35)))
+  }
+  # Add the lines
+  for(i in c("Resident", "Short", "Long"))
+  {
+    with(predictdata2[predictdata2$CountrySpecificCat==i&predictdata2$Dataset==c,], lines(LogGenLength, GRMfit, lwd=4, 
+                                                                                          col=paste0(colvec[i], "FF")))
+  }
+  # add axes etc. 
+  axis(1)
+  axis(2)
+  box()
+  mtext("Log Generation Time", side=1, line=1.3,cex=1.2)
+  mtext("Mean Synchrony", side=2, line=1.4, cex=1.2)
+  mtext(paste0(LETTERS[li],") ", c), side=3, adj=0, line=0.3, cex=1.3)
+  legend("topright", c("Resident", "Short", "Long"), lwd=3, col=colvec, bty="n")
+  li <- li + 1
+  plot(0,0, type="n", axes=FALSE, ann=FALSE, xlim=range(GRdata[,"LogGenLength"]), 
+       ylim=range(c(GRdata$MeanRhos, LAdata$MeanRhos)))
+  # The coloured ones
+  with(LAdata[LAdata$Dataset==c,], points(LogGenLength, MeanRhos, pch=16, 
+                                          col=paste0(colvec[CountrySpecificCat], "77")))
+  # Add the confidence interval, this should be a shaded polygon, quite transparent
+  for(i in c("Resident", "Short", "Long"))
+  {
+    with(predictdata2[predictdata2$CountrySpecificCat==i&predictdata2$Dataset==c,], polygon(c(LogGenLength, rev(LogGenLength)), 
+                                                                                            c(LAMlower, rev(LAMupper)), border=NA, 
+                                                                                            col=paste0(colvec[i], 35)))
+  }
+  # Add the lines
+  for(i in c("Resident", "Short", "Long"))
+  {
+    with(predictdata2[predictdata2$CountrySpecificCat==i&predictdata2$Dataset==c,], lines(LogGenLength, LAMfit, lwd=3, 
+                                                                                          col=paste0(colvec[i], "FF")))
+  }
+  # add axes etc. 
+  axis(1)
+  axis(2)
+  box()
+  mtext("Log Generation Time", side=1, line=1.3, cex=1.2)
+  mtext("Mean Synchrony", side=2, line=1.4, cex=1.2)
+  mtext(paste0(LETTERS[li],") ", c), side=3, adj=0, line=0.3, cex=1.3)
+  legend("topright", c("Resident", "Short", "Long"), lwd=3, col=colvec, bty="n")
+  li <- li + 1
+  
+}
+mtext(c("Log Population Growth Rate", "Log Abundance"), side=3, outer=TRUE, at=c(0.25,0.75), line=-0.3, cex=1.5)
+dev.off()
