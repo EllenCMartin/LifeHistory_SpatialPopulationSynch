@@ -1,1 +1,110 @@
+##############
+## Combining Synchrony Tables from Multiple Datasets & Creating Models
+## Norway, Sweden, Switzerland, UK
+## Ellen C Martin 
+## Updated 28 11 2022 
 
+library(lme4)
+library(MuMIn)
+library(sjmisc)
+library(sjPlot)
+library(data.table)
+library(dplyr)
+library(MuMIn)
+library(lme4)
+library(ggeffects)
+library(extrafont)
+library(cowplot)
+library(ggplot2)
+library(RColorBrewer)
+library(plyr)
+library(ggrepel)
+
+
+## Combining Switzerland, UK, Sweden, Norway synchtabs including the mean corrs for distance intervals.
+SynchTabSweden <- load("SWEDEN_COUNTRYSPECIFIC_SYNCH.rda")  
+SynchTabSweden <- SynchTabMigMerge2
+SynchTabSwitzerland <- load("SWITZERLAND_COUNTRYSPECIFIC_SYNCH.rda") 
+SynchTabSwitzerland <- SynchTabMigMerge2
+SynchTabUK <- load("UKOFFSET_COUNTRYSPECIFIC_SYNCH.rda") 
+SynchTabUK <- SynchTabMigMerge2
+SynchTabNorway <- load("NORWAY_COUNTRYSPECIFIC_SYNCH.rda")  
+SynchTabNorway <- SynchTabMigMerge2
+
+
+#### QAQC DATA, remove duplicates with same maxlik and just retain one.
+SynchTabSwitzerland <- SynchTabSwitzerland [!duplicated(SynchTabSwitzerland[c(1,5,6)]),]
+SynchTabUK <- SynchTabUK[!duplicated(SynchTabUK[c(1,5,6)]),]
+SynchTabNorway <- SynchTabNorway [!duplicated(SynchTabNorway[c(1,5,6)]),]
+SynchTabSweden <- SynchTabSweden [!duplicated(SynchTabSweden[c(1,5,6)]),]
+
+
+## Join the tables
+SynchTables2<- rbind(SynchTabSweden, SynchTabSwitzerland)
+SynchTables3<- rbind(SynchTables2, SynchTabUK)
+SynchTablesAll<- rbind(SynchTables3, SynchTabNorway)
+
+## Take log generation length and add as new column
+SynchTablesAll['LogGenLength'] <- log(SynchTablesAll$GenLength)
+
+## Explore the data: Need to divide by two because double species count for log.abundance and log.r
+table_species<- (with(SynchTablesAll, table(nameeg, Dataset)))/2
+table_resmig<- (with(SynchTablesAll, table(Group2Cat, Dataset)))/2
+table_group3cat<- (with(SynchTablesAll, table(CountrySpecificCat, Dataset)))/2
+
+## Separate out log abundance and log growth rate
+logabSynchTab<- SynchTablesAll[SynchTablesAll$SynchVar %like% "log.abundance",]
+logrSynchTab<- SynchTablesAll[SynchTablesAll$SynchVar %like% "log.r",]
+
+## Individuals as random intercepts
+logrSynchTab$nameeg<-as.factor(logrSynchTab$nameeg)
+logabSynchTab$nameeg<-as.factor(logabSynchTab$nameeg)
+
+## Data cleaning: Remove all NAs and replace with 0.
+logrSynchTab$Mean350r[is.na(logrSynchTab$Mean350r)] <- 0
+logrSynchTab$Mean500r[is.na(logrSynchTab$Mean500r)] <- 0
+logrSynchTab$Mean1000r[is.na(logrSynchTab$Mean1000r)] <- 0
+logrSynchTab$MeanRawr[is.na(logrSynchTab$MeanRawr)] <- 0
+
+logrSynchTab <- logrSynchTab %>% 
+ filter_all(all_vars(!is.infinite(.)))
+
+logabSynchTab <- logabSynchTab %>% 
+  filter_all(all_vars(!is.infinite(.)))
+
+## Renname UK offset to just United Kingdom
+logabSynchTab$Dataset[logabSynchTab$Dataset == "UK Offset"] <- "United Kingdom"
+logrSynchTab$Dataset[logrSynchTab$Dataset == "UK Offset"] <- "United Kingdom"
+
+###################################################################################################
+## GLOBAL MODEL on log abundance ##################################################################
+###################################################################################################
+globalmodel_abundance <- lmer(MeanRhos~ CountrySpecificCat*Dataset*LogGenLength + (1|nameeg), 
+                              na.action=na.fail, REML = FALSE,  data = logabSynchTab) 
+output1 <- dredge(globalmodel_abundance, fixed="Dataset")
+output11 <- data.frame(output1)
+output11[output11$delta<10,]
+
+
+bestabundancemodel <- update(get.models(output1, 1)[[1]], REML=TRUE)
+  summary(bestabundancemodel)
+secondbestabundancemodel <- update(get.models(output1, 2)[[1]], REML=TRUE)
+summary(secondbestabundancemodel)
+
+
+####################################################################################################
+## GLOBAL MODEL on log growth rate #################################################################
+####################################################################################################
+globalmodel_growthrate <- lmer(MeanRhos ~ CountrySpecificCat*Dataset*LogGenLength + (1|nameeg), 
+                              na.action=na.fail, REML = FALSE,  data = logrSynchTab) 
+outputR <- dredge(globalmodel_growthrate, fixed="Dataset")
+outputRr <- data.frame(outputR)
+outputRr[outputRr$delta<5,]
+
+
+bestgrowthratemodel <- update(get.models(outputR, 1)[[1]], REML=TRUE)
+summary(bestgrowthratemodel)
+secondbestgrowthratemodel <- update(get.models(outputR, 2)[[1]], REML=TRUE)
+summary(secondbestgrowthratemodel)
+
+ 
