@@ -8,14 +8,13 @@
 # PAPER FIGURES ###################################################################################
 ####################################################################################################
 
+## FIGURE 1: MAP MADE IN ARCMAP 10
 
-## FIGURE 1
+## FIGURE 2
+## Number of species present in 4, 3, 2, or 1 dataset.
+
 countrycolors = c("#1B9E77","#D95F02", "#E6AB02" ,"#A6761D")
 migclasscolors = c("#7570B3", "#E7298A", "#66A61E")
-
-## FIGURE 1A
-## FIGURE 1A
-## Number of species present in 4, 3, 2, or 1 dataset.
 
 datasetcount <-  as.data.frame(table(SynchTablesAll$nameeg)/2)
 colnames(datasetcount) <- c("nameeg","datasetcount")
@@ -26,7 +25,7 @@ fig1adata<-datasetcount_merged[- grep("log.r", datasetcount_merged$SynchVar),]
 fig1adata$datasetcount <- as.factor(fig1adata$datasetcount)
 legend_title <- "Species Present \nin # Countries"
 
-fig1a <- ggplot(fig1adata, aes(x=Dataset, fill=datasetcount)) + 
+fig2a<- ggplot(fig1adata, aes(x=Dataset, fill=datasetcount)) + 
   geom_bar(color="black", size = 1) +
   theme_bw()+
   theme(title = element_text(size = 24,family ="serif", color="black"))+ 
@@ -60,7 +59,7 @@ fig1a <- ggplot(fig1adata, aes(x=Dataset, fill=datasetcount)) +
   theme(plot.tag = element_text(face="bold", size=24)) 
 
 
-## FIGURE 1B
+## FIGURE 2B
 ## Number of species present in 4, 3, 2, or 1 dataset.
 ## number of different migratory classes per dataset
 fig1adata$Dataset[fig1adata$Dataset == "UK Offset"] <- "United Kingdom"
@@ -72,7 +71,7 @@ data_count_1b$Dataset <- factor(data_count_1b$Dataset, levels = c("Norway", "Swe
 data_count_1b$CountrySpecificCat <- factor(data_count_1b$CountrySpecificCat, levels=c("Resident", "Short", "Long"))
 
 
-fig1b<- ggplot(data_count_1b, aes(x=CountrySpecificCat, y= nameeg, group = Dataset, fill=Dataset)) +
+fig2b<- ggplot(data_count_1b, aes(x=CountrySpecificCat, y= nameeg, group = Dataset, fill=Dataset)) +
   geom_bar(position="dodge", stat = "identity",  colour="black", size=1, lwd = 1) +
   labs(y = "Number of Species", x = "Migration Tactic") +
   theme_bw() +
@@ -109,7 +108,7 @@ fig1b<- ggplot(data_count_1b, aes(x=CountrySpecificCat, y= nameeg, group = Datas
 
 
 
-## FIGURE 1C 
+## FIGURE 2C 
 ## Histogram of Log Generation Length
 mu <- ddply(logrSynchTab, "CountrySpecificCat", summarise, grp.mean=mean(LogGenLength))
 min <- ddply(logrSynchTab, "CountrySpecificCat", summarise, grp.min=min(LogGenLength))
@@ -121,7 +120,7 @@ mu3 <- ddply(mu2, "CountrySpecificCat", summarise, grp.mean=mean(LogGenLength))
 mu2$CountrySpecificCat <- factor(mu2$CountrySpecificCat, levels=c("Resident", "Short", "Long"))
 mu2 <- mu2[!duplicated(mu2$nameeg), ]
 
-fig1c <- ggplot(mu2, aes(x=LogGenLength, fill=CountrySpecificCat)) + 
+fig2c <- ggplot(mu2, aes(x=LogGenLength, fill=CountrySpecificCat)) + 
   geom_histogram(alpha=0.8, lwd = 1, color="black", binwidth=0.20, size = 1, position = "stack") + 
   xlim(min(mu2$LogGenLength), max(mu2$LogGenLength)) +
   scale_color_manual(values=c("#7570B3", "#E7298A", "#66A61E")) +
@@ -155,8 +154,8 @@ fig1c <- ggplot(mu2, aes(x=LogGenLength, fill=CountrySpecificCat)) +
 
 
 
-## FIGURE 2
-## Figure 2a Distance intervals and synchrony in log growth rate
+## FIGURE 3
+## Figure 3a Distance intervals and synchrony in log growth rate
 ## Plot mean synchrony per distance class per dataset
 mean350grCountry <- ddply(logrSynchTab, "Dataset", summarise, grp.mean=mean(Mean350r))
 Distance <- c("350")
@@ -190,7 +189,7 @@ lower=fig2dfgr$grp.mean-(allses) # Calculate lower bar of standard deviation
 upper=fig2dfgr$grp.mean+(allses) # Calculate upper bar of standard deviation
 
 
-fig2a<-ggplot(fig2dfgr, aes(x=Dataset, grp.mean, fill=Distance, color=Distance)) +
+fig3a<-ggplot(fig2dfgr, aes(x=Dataset, grp.mean, fill=Distance, color=Distance)) +
   geom_point(aes(color=Distance), width=2,  size=7, position = position_dodge(0.7)) +
   geom_errorbar(data=fig2dfgr, aes(ymin=lower, ymax=upper, group = Distance), width = 0.3,
                 position = position_dodge(0.7), size=1) +
@@ -237,7 +236,7 @@ fig2a<-ggplot(fig2dfgr, aes(x=Dataset, grp.mean, fill=Distance, color=Distance))
 
 
 
-## Figure 2b Distance intervals and synchrony in log abundance
+## Figure 3B Distance intervals and synchrony in log abundance
 ## Plot mean synchrony per distance class per dataset
 
 mean350abCountry <- ddply(logabSynchTab, "Dataset", summarise, grp.mean=mean(Mean350ab))
@@ -274,7 +273,7 @@ lowerab=fig2dfab$grp.mean-(allsesab)
 upperab=fig2dfab$grp.mean+(allsesab)
 
 
-fig2b<-ggplot(fig2dfab, aes(x=Dataset, grp.mean, fill=Distance, color=Distance)) +
+fig3b<-ggplot(fig2dfab, aes(x=Dataset, grp.mean, fill=Distance, color=Distance)) +
   geom_point(aes(color=Distance), width=0,  size=7, position = position_dodge(0.7)) +
   geom_errorbar(data=fig2dfab, aes(ymin=lowerab, ymax=upperab, group = Distance), width = 0.4,
                 position = position_dodge(0.7), size=1) +
@@ -323,12 +322,12 @@ fig2b<-ggplot(fig2dfab, aes(x=Dataset, grp.mean, fill=Distance, color=Distance))
 
 
 windows(width=13, height=6.5)
-png(file="FIGURE2.png", width=13, height=6.5, unit="in", res=500)
-plot_grid(fig2a, fig2b, scale=1, ncol=2, align="h")
+png(file="FIGURE3.png", width=13, height=6.5, unit="in", res=500)
+plot_grid(fig3a, fig3b, scale=1, ncol=2, align="h")
 dev.off()
 
 
-### FIGURE 3 
+### FIGURE 4
 # Get the saved models models from wherever they were stored
 GRmodel <- bestgrowthratemodel
 LAmodel <- secondbestabundancemodel
@@ -380,7 +379,7 @@ colvec <- c(Resident="#7570B3", Short="#E7298A", Long="#66A61E")
 
 # make a window that fits the number of panels
 windows(width=7.2, height=3.5)
-png("Figure3MM.png", width=7.2, height=3.9, units="in", res=300)
+png("Figure4.png", width=7.2, height=3.9, units="in", res=300)
 # define some plotting settings
 par(mfrow=c(1,2), mai=c(0.5,0.5,0.4,0.1), mgp=c(1,0.1,0), tck=0.015, family="serif")
 
